@@ -37,16 +37,20 @@
 
 - [ ] Al registrarse exitosamente, el repartidor queda en estado `pendiente_activacion`.
 - [ ] El sistema envía una notificación de confirmación al correo registrado.
-- [ ] Un repartidor en estado `pendiente_activacion` no recibe asignaciones de pedidos.
+- [ ] Un repartidor en estado `pendiente_activacion` no puede recibir asignaciones de pedidos.
 
 ## Notas Técnicas
 
 ### Endpoint — Registro de Repartidor
 
-- **Método HTTP:** `POST`
-- **Ruta:** `/api/v1/repartidores/registro`
+| Campo | Detalle |
+|---|---|
+| Método HTTP | `POST` |
+| Ruta | `/api/v1/repartidores/registro` |
 
 ### Ejemplo de Respuesta JSON
+
+Registro exitoso:
 
 ```json
 {
@@ -60,7 +64,7 @@
 }
 ```
 
-Si el correo o la licencia ya están registrados:
+Correo o licencia ya registrados:
 
 ```json
 {
@@ -79,8 +83,8 @@ Si el correo o la licencia ya están registrados:
 - **Resultado esperado:**
   - Código HTTP 201 Created
   - El repartidor queda con estado `pendiente_activacion`
-  - Campo `success` en `true`
-  - Se envía notificación de confirmación al correo
+  - Campo `success` retorna `true`
+  - Se envía notificación de confirmación al correo registrado
 
 ### Caso 2 — Correo o licencia duplicados
 
@@ -88,8 +92,8 @@ Si el correo o la licencia ya están registrados:
 - **Acción:** Enviar `POST` con datos duplicados.
 - **Resultado esperado:**
   - Código HTTP 409 Conflict
-  - Campo `mensaje` indica el conflicto
-  - Campo `success` en `false`
+  - Campo `mensaje` indica el motivo del conflicto
+  - Campo `success` retorna `false`
 
 ### Caso 3 — Campos obligatorios faltantes
 
@@ -112,7 +116,7 @@ Si el correo o la licencia ya están registrados:
 ### Alcance Funcional
 
 - [ ] El endpoint registra correctamente al repartidor con todos sus datos.
-- [ ] Se validan duplicados de correo y número de licencia.
+- [ ] Se validan duplicados de correo y número de licencia antes de crear el registro.
 - [ ] El estado inicial del repartidor es `pendiente_activacion`.
 
 ### Pruebas Completadas
@@ -124,12 +128,12 @@ Si el correo o la licencia ya están registrados:
 ### Documentación Técnica
 
 - [ ] Endpoint documentado en Swagger / OpenAPI.
-- [ ] Se describen campos de entrada, salida y ejemplos de respuesta.
+- [ ] Se describen campos de entrada, salida y ejemplos de respuesta exitosa y de error.
 
 ### Manejo de Errores
 
 - [ ] Se retorna HTTP 400 para datos inválidos o incompletos.
-- [ ] Se retorna HTTP 409 para duplicados.
+- [ ] Se retorna HTTP 409 para registros duplicados.
 - [ ] Se retorna HTTP 503 si la base de datos no está disponible.
 
 ---
@@ -147,7 +151,7 @@ Si el correo o la licencia ya están registrados:
 - El repartidor accede a su panel principal.
 - Visualiza su estado actual de disponibilidad (`Disponible` / `No disponible`).
 - Cambia su estado con una sola acción.
-- El sistema actualiza el estado de forma inmediata y deja de asignarle pedidos si pasa a `No disponible`.
+- El sistema actualiza el estado de forma inmediata y suspende la asignación de pedidos si el repartidor pasa a `No disponible`.
 
 ## Criterios de Aceptación
 
@@ -166,10 +170,14 @@ Si el correo o la licencia ya están registrados:
 
 ### Endpoint — Actualización de Disponibilidad
 
-- **Método HTTP:** `PATCH`
-- **Ruta:** `/api/v1/repartidores/{id}/disponibilidad`
+| Campo | Detalle |
+|---|---|
+| Método HTTP | `PATCH` |
+| Ruta | `/api/v1/repartidores/{id}/disponibilidad` |
 
 ### Ejemplo de Respuesta JSON
+
+Actualización exitosa:
 
 ```json
 {
@@ -191,7 +199,7 @@ Si el correo o la licencia ya están registrados:
 - **Resultado esperado:**
   - Código HTTP 200 OK
   - El repartidor queda habilitado para recibir asignaciones
-  - Campo `success` en `true`
+  - Campo `success` retorna `true`
 
 ### Caso 2 — Cambio a no disponible
 
@@ -199,11 +207,11 @@ Si el correo o la licencia ya están registrados:
 - **Acción:** Ejecutar `PATCH` con `disponibilidad: "no_disponible"`.
 - **Resultado esperado:**
   - Código HTTP 200 OK
-  - El repartidor no recibe nuevas asignaciones
+  - El repartidor deja de recibir nuevas asignaciones de pedidos
 
 ### Caso 3 — ID de repartidor inexistente
 
-- **Acción:** Ejecutar `PATCH` con un `id` inexistente.
+- **Acción:** Ejecutar `PATCH` con un `id` que no existe en el sistema.
 - **Resultado esperado:**
   - Código HTTP 404 Not Found
   - Campo `mensaje`: `"Repartidor no encontrado."`
@@ -218,7 +226,7 @@ Si el correo o la licencia ya están registrados:
 ### Pruebas Completadas
 
 - [ ] Se probaron los dos estados posibles y su efecto en la asignación.
-- [ ] Se cubrió el caso de ID inexistente.
+- [ ] Se cubrió el caso de ID de repartidor inexistente.
 
 ### Manejo de Errores
 
@@ -233,13 +241,13 @@ Si el correo o la licencia ya están registrados:
 
 **Como** repartidor,
 **quiero** ser asignado automáticamente a un pedido cuando estoy disponible y el comercio ha confirmado que el pedido está listo,
-**para que** el proceso de entrega inicie sin demoras y yo no tenga que revisar manualmente si hay pedidos nuevos.
+**para que** el proceso de entrega inicie sin demoras y no tenga que revisar manualmente si hay pedidos nuevos.
 
 ## Flujo Esperado
 
 - El comercio marca un pedido como `Listo para recoger`.
-- El sistema busca al repartidor disponible más cercano al comercio.
-- El sistema asigna el pedido al repartidor y le envía una notificación.
+- El sistema identifica al repartidor disponible más cercano al comercio.
+- El sistema asigna el pedido y notifica al repartidor de forma inmediata.
 - Si el repartidor no acepta en 60 segundos, el sistema reasigna a otro repartidor disponible.
 
 ## Criterios de Aceptación
@@ -250,7 +258,7 @@ Si el correo o la licencia ya están registrados:
 - [ ] Solo los repartidores con estado `Disponible` son candidatos para la asignación.
 - [ ] Si no hay repartidores disponibles, el sistema reintenta la asignación cada 30 segundos.
 
-### 2. Notificaciones y tiempos
+### 2. Notificaciones y tiempos de respuesta
 
 - [ ] El repartidor recibe una notificación inmediata al ser asignado.
 - [ ] Si el repartidor no acepta en 60 segundos, el pedido se reasigna automáticamente.
@@ -258,12 +266,16 @@ Si el correo o la licencia ya están registrados:
 
 ## Notas Técnicas
 
-### Endpoint — Asignación de Pedido
+### Endpoint — Asignación de Pedido a Repartidor
 
-- **Método HTTP:** `POST`
-- **Ruta:** `/api/v1/pedidos/{id}/asignar-repartidor`
+| Campo | Detalle |
+|---|---|
+| Método HTTP | `POST` |
+| Ruta | `/api/v1/pedidos/{id}/asignar-repartidor` |
 
 ### Ejemplo de Respuesta JSON
+
+Asignación exitosa:
 
 ```json
 {
@@ -278,7 +290,7 @@ Si el correo o la licencia ya están registrados:
 }
 ```
 
-Si no hay repartidores disponibles:
+Sin repartidores disponibles:
 
 ```json
 {
@@ -299,30 +311,30 @@ Si no hay repartidores disponibles:
   - El pedido queda asignado al repartidor más cercano
   - El repartidor recibe notificación inmediata
 
-### Caso 2 — Reasignación por tiempo de espera
+### Caso 2 — Reasignación por tiempo de espera vencido
 
-- **Precondición:** El repartidor asignado no acepta en 60 segundos.
+- **Precondición:** El repartidor asignado no acepta dentro de los 60 segundos.
 - **Resultado esperado:**
   - El sistema reasigna automáticamente a otro repartidor disponible
   - El repartidor original vuelve al estado `Disponible`
 
 ### Caso 3 — Sin repartidores disponibles
 
-- **Precondición:** No hay repartidores con estado `Disponible`.
+- **Precondición:** No hay repartidores con estado `Disponible` en el sistema.
 - **Resultado esperado:**
-  - Campo `success` en `false`
-  - El sistema reintenta cada 30 segundos
+  - Campo `success` retorna `false`
+  - El sistema reintenta la asignación cada 30 segundos
 
 ## Definición de Hecho
 
 ### Alcance Funcional
 
-- [ ] El sistema asigna automáticamente al repartidor más cercano disponible.
+- [ ] El sistema asigna automáticamente al repartidor disponible más cercano.
 - [ ] La lógica de reasignación por tiempo límite funciona correctamente.
 
 ### Pruebas Completadas
 
-- [ ] Se probó la asignación exitosa y la reasignación por timeout.
+- [ ] Se probó la asignación exitosa y la reasignación por tiempo de espera vencido.
 - [ ] Se cubrió el escenario sin repartidores disponibles.
 
 ### Manejo de Errores
@@ -345,7 +357,7 @@ Si no hay repartidores disponibles:
 - El repartidor recibe la notificación de asignación de un pedido.
 - Accede a la vista de detalle del pedido desde su panel.
 - El sistema muestra la información completa: comercio, dirección de recogida, datos del cliente, dirección de entrega, productos y notas especiales.
-- El repartidor puede abrir la dirección de entrega en un mapa con una sola acción.
+- El repartidor puede abrir la dirección de entrega en un mapa con un solo toque.
 
 ## Criterios de Aceptación
 
@@ -354,21 +366,25 @@ Si no hay repartidores disponibles:
 - [ ] Se muestra el nombre y dirección del comercio donde recoger el pedido.
 - [ ] Se muestra el nombre del cliente, dirección de entrega y teléfono de contacto.
 - [ ] Se lista cada producto con nombre y cantidad.
-- [ ] Si el cliente dejó notas especiales, estas se muestran de forma destacada.
+- [ ] Las notas especiales del cliente se muestran de forma destacada cuando existen.
 
-### 2. Navegación
+### 2. Navegación y acceso
 
 - [ ] La dirección de entrega incluye un enlace que abre el mapa de navegación (Google Maps u otro).
 - [ ] El repartidor puede acceder al detalle del pedido en cualquier momento mientras este esté activo.
 
 ## Notas Técnicas
 
-### Endpoint — Detalle del Pedido Asignado
+### Endpoint — Detalle del Pedido Activo
 
-- **Método HTTP:** `GET`
-- **Ruta:** `/api/v1/repartidores/{id}/pedido-activo`
+| Campo | Detalle |
+|---|---|
+| Método HTTP | `GET` |
+| Ruta | `/api/v1/repartidores/{id}/pedido-activo` |
 
 ### Ejemplo de Respuesta JSON
+
+Consulta exitosa:
 
 ```json
 {
@@ -394,6 +410,16 @@ Si no hay repartidores disponibles:
 }
 ```
 
+Sin pedido activo:
+
+```json
+{
+  "mensaje": "No tienes un pedido activo en este momento.",
+  "data": null,
+  "success": false
+}
+```
+
 ## Casos de Prueba Funcional
 
 ### Caso 1 — Consulta exitosa con pedido activo
@@ -411,9 +437,9 @@ Si no hay repartidores disponibles:
   - Código HTTP 404 Not Found
   - Campo `mensaje`: `"No tienes un pedido activo en este momento."`
 
-### Caso 3 — ID de repartidor inválido
+### Caso 3 — ID de repartidor inexistente
 
-- **Acción:** Ejecutar `GET` con un `id` inexistente.
+- **Acción:** Ejecutar `GET` con un `id` que no existe en el sistema.
 - **Resultado esperado:**
   - Código HTTP 404 Not Found
 
@@ -421,17 +447,17 @@ Si no hay repartidores disponibles:
 
 ### Alcance Funcional
 
-- [ ] El endpoint retorna correctamente todos los datos del pedido activo.
-- [ ] Las notas especiales del cliente se incluyen en la respuesta.
+- [ ] El endpoint retorna correctamente todos los datos del pedido activo del repartidor.
+- [ ] Las notas especiales del cliente se incluyen en la respuesta cuando existen.
 
 ### Pruebas Completadas
 
 - [ ] Se probó la consulta con pedido activo y sin pedido activo.
-- [ ] Se validó el retorno correcto de todos los campos.
+- [ ] Se validó el retorno correcto de todos los campos definidos.
 
 ### Manejo de Errores
 
-- [ ] Se retorna HTTP 404 si el repartidor no tiene pedido activo.
+- [ ] Se retorna HTTP 404 si el repartidor no tiene pedido activo o no existe.
 - [ ] Se retorna HTTP 503 si la base de datos no está disponible.
 
 ---
@@ -447,14 +473,14 @@ Si no hay repartidores disponibles:
 ## Flujo Esperado
 
 - El repartidor completa la entrega al cliente.
-- Accede al pedido activo en su panel y selecciona la opción de confirmar entrega.
+- Accede al pedido activo en su panel y selecciona "Marcar como entregado".
 - El sistema registra la hora de entrega y actualiza el estado del pedido a `Entregado`.
-- El sistema notifica al cliente y al comercio.
-- El repartidor queda en estado `Disponible` automáticamente.
+- El sistema notifica al cliente y al comercio del cierre exitoso.
+- El repartidor queda en estado `Disponible` de forma automática.
 
 ## Criterios de Aceptación
 
-### 1. Confirmación y estado
+### 1. Confirmación y cambio de estado
 
 - [ ] El repartidor puede marcar el pedido como entregado únicamente si este se encuentra en estado `En camino`.
 - [ ] Al confirmar, el estado del pedido cambia a `Entregado` de forma inmediata.
@@ -470,10 +496,14 @@ Si no hay repartidores disponibles:
 
 ### Endpoint — Confirmación de Entrega
 
-- **Método HTTP:** `PATCH`
-- **Ruta:** `/api/v1/pedidos/{id}/confirmar-entrega`
+| Campo | Detalle |
+|---|---|
+| Método HTTP | `PATCH` |
+| Ruta | `/api/v1/pedidos/{id}/confirmar-entrega` |
 
 ### Ejemplo de Respuesta JSON
+
+Confirmación exitosa:
 
 ```json
 {
@@ -488,7 +518,7 @@ Si no hay repartidores disponibles:
 }
 ```
 
-Si el pedido no está en estado `En camino`:
+Pedido en estado incorrecto:
 
 ```json
 {
@@ -517,7 +547,7 @@ Si el pedido no está en estado `En camino`:
 - **Acción:** Ejecutar `PATCH` de confirmación.
 - **Resultado esperado:**
   - Código HTTP 400 Bad Request
-  - Campo `success` en `false`
+  - Campo `success` retorna `false`
   - Campo `mensaje` describe el motivo del rechazo
 
 ### Caso 3 — ID de pedido inexistente
@@ -537,14 +567,15 @@ Si el pedido no está en estado `En camino`:
 ### Pruebas Completadas
 
 - [ ] Se probó la confirmación exitosa y el cambio de estado del repartidor.
-- [ ] Se cubrió el intento de confirmar en un estado incorrecto.
+- [ ] Se cubrió el intento de confirmar en un estado de pedido incorrecto.
 
 ### Documentación Técnica
 
 - [ ] Endpoint documentado en Swagger / OpenAPI.
+- [ ] Se describen campos de entrada, salida y ejemplos de respuesta exitosa y de error.
 
 ### Manejo de Errores
 
-- [ ] Se retorna HTTP 400 si el pedido no está en el estado correcto.
+- [ ] Se retorna HTTP 400 si el pedido no está en el estado requerido.
 - [ ] Se retorna HTTP 404 si el pedido no existe.
 - [ ] Se retorna HTTP 503 si la base de datos no está disponible.
