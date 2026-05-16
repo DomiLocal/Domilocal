@@ -54,11 +54,11 @@ Registro exitoso:
 
 ```json
 {
-  "mensaje": "Registro exitoso. Tu cuenta está pendiente de activación.",
+  "message": "Registro exitoso. Tu cuenta está pendiente de activación.",
   "data": {
     "id_repartidor": "R-00123",
-    "nombre": "Carlos Pérez",
-    "estado": "pendiente_activacion"
+    "name": "Carlos Pérez",
+    "state": "pendiente_activacion"
   },
   "success": true
 }
@@ -68,7 +68,7 @@ Correo o licencia ya registrados:
 
 ```json
 {
-  "mensaje": "El correo o número de licencia ya se encuentra registrado.",
+  "message": "El correo o número de licencia ya se encuentra registrado.",
   "data": null,
   "success": false
 }
@@ -92,7 +92,7 @@ Correo o licencia ya registrados:
 - **Acción:** Enviar `POST` con datos duplicados.
 - **Resultado esperado:**
   - Código HTTP 409 Conflict
-  - Campo `mensaje` indica el motivo del conflicto
+  - Campo `message` indica el motivo del conflicto
   - Campo `success` retorna `false`
 
 ### Caso 3 — Campos obligatorios faltantes
@@ -101,7 +101,7 @@ Correo o licencia ya registrados:
 - **Acción:** Enviar `POST` con campos incompletos.
 - **Resultado esperado:**
   - Código HTTP 400 Bad Request
-  - Campo `mensaje` describe el campo faltante
+  - Campo `message` describe el campo faltante
 
 ### Caso 4 — Formato de contraseña inválido
 
@@ -109,7 +109,7 @@ Correo o licencia ya registrados:
 - **Acción:** Enviar `POST` con contraseña inválida.
 - **Resultado esperado:**
   - Código HTTP 400 Bad Request
-  - Campo `mensaje`: `"La contraseña debe tener mínimo 8 caracteres e incluir al menos un número."`
+  - Campo `message`: `"La contraseña debe tener mínimo 8 caracteres e incluir al menos un número."`
 
 ## Definición de Hecho
 
@@ -181,10 +181,10 @@ Actualización exitosa:
 
 ```json
 {
-  "mensaje": "Estado de disponibilidad actualizado correctamente.",
+  "message": "Estado de disponibilidad actualizado correctamente.",
   "data": {
     "id_repartidor": "R-00123",
-    "disponibilidad": "disponible"
+    "availability": "disponible"
   },
   "success": true
 }
@@ -204,7 +204,7 @@ Actualización exitosa:
 ### Caso 2 — Cambio a no disponible
 
 - **Precondición:** El repartidor está en estado `Disponible`.
-- **Acción:** Ejecutar `PATCH` con `disponibilidad: "no_disponible"`.
+- **Acción:** Ejecutar `PATCH` con `availability: "no_disponible"`.
 - **Resultado esperado:**
   - Código HTTP 200 OK
   - El repartidor deja de recibir nuevas asignaciones de pedidos
@@ -214,7 +214,7 @@ Actualización exitosa:
 - **Acción:** Ejecutar `PATCH` con un `id` que no existe en el sistema.
 - **Resultado esperado:**
   - Código HTTP 404 Not Found
-  - Campo `mensaje`: `"Repartidor no encontrado."`
+  - Campo `message`: `"Repartidor no encontrado."`
 
 ## Definición de Hecho
 
@@ -279,7 +279,7 @@ Asignación exitosa:
 
 ```json
 {
-  "mensaje": "Repartidor asignado exitosamente.",
+  "message": "Repartidor asignado exitosamente.",
   "data": {
     "id_pedido": "PED-0456",
     "id_repartidor": "R-00123",
@@ -294,7 +294,7 @@ Sin repartidores disponibles:
 
 ```json
 {
-  "mensaje": "No hay repartidores disponibles en este momento. Reintentando en 30 segundos.",
+  "message": "No hay repartidores disponibles en este momento. Reintentando en 30 segundos.",
   "data": null,
   "success": false
 }
@@ -388,7 +388,7 @@ Consulta exitosa:
 
 ```json
 {
-  "mensaje": "Detalle del pedido obtenido exitosamente.",
+  "message": "Detalle del pedido obtenido exitosamente.",
   "data": {
     "id_pedido": "PED-0456",
     "comercio": {
@@ -414,7 +414,7 @@ Sin pedido activo:
 
 ```json
 {
-  "mensaje": "No tienes un pedido activo en este momento.",
+  "message": "No tienes un pedido activo en este momento.",
   "data": null,
   "success": false
 }
@@ -435,7 +435,7 @@ Sin pedido activo:
 - **Precondición:** El repartidor no tiene ningún pedido asignado actualmente.
 - **Resultado esperado:**
   - Código HTTP 404 Not Found
-  - Campo `mensaje`: `"No tienes un pedido activo en este momento."`
+  - Campo `message`: `"No tienes un pedido activo en este momento."`
 
 ### Caso 3 — ID de repartidor inexistente
 
@@ -507,7 +507,7 @@ Confirmación exitosa:
 
 ```json
 {
-  "mensaje": "Entrega confirmada exitosamente.",
+  "message": "Entrega confirmada exitosamente.",
   "data": {
     "id_pedido": "PED-0456",
     "estado": "entregado",
@@ -522,7 +522,7 @@ Pedido en estado incorrecto:
 
 ```json
 {
-  "mensaje": "No es posible confirmar la entrega. El pedido no se encuentra en camino.",
+  "message": "No es posible confirmar la entrega. El pedido no se encuentra en camino.",
   "data": null,
   "success": false
 }
@@ -548,7 +548,7 @@ Pedido en estado incorrecto:
 - **Resultado esperado:**
   - Código HTTP 400 Bad Request
   - Campo `success` retorna `false`
-  - Campo `mensaje` describe el motivo del rechazo
+  - Campo `message` describe el motivo del rechazo
 
 ### Caso 3 — ID de pedido inexistente
 
