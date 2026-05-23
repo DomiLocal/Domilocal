@@ -1,8 +1,22 @@
-.env
+# Entorno virtual
 venv/
+.env/
+
+# Python
 __pycache__/
 *.pyc
+
+# VS Code
 .vscode/
+
+# Variables de entorno
+.env
 .env.example
+
+# Archivos específicos
 main.py
 requirements.txt
+
+# Sistema
+.DS_Store
+Thumbs.db
