@@ -11,7 +11,7 @@ class DealerService:
     def register(self, data: DealerCreate) -> DealerResponseData:
         # REGLA DE NEGOCIO: Validar duplicados de email o licencia (Caso 2)
         if self.repo.find_by_email(data.email) or self.repo.find_by_license(data.license_number):
-            raise ValueError("El correo o número de licencia ya se encuentra registrado.")
+            raise ValueError("Email or license number is already registered.")
 
         # Guardar a través del repositorio
         dealer = self.repo.create(

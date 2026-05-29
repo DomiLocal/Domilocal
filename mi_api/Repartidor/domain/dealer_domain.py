@@ -6,7 +6,7 @@ from typing import Optional, Literal
 
 # Reglas de tipos del negocio
 VehicleType = Literal["moto", "bicycle", "car"]
-DealerStatus = Literal["pendiente_activacion", "active", "inactive"]
+DealerStatus = Literal["pending_activation", "active", "inactive"]
 
 # ── Schema de ENTRADA (Validación del formulario) ──────
 class DealerCreate(BaseModel):
@@ -22,7 +22,7 @@ class DealerCreate(BaseModel):
     @classmethod
     def validate_password_strength(cls, v: str) -> str:
         if len(v) < 8 or not any(char.isdigit() for char in v):
-            raise ValueError("La contraseña debe tener mínimo 8 caracteres e incluir al menos un número.")
+            raise ValueError("Password must be at least 8 characters long and include at least one number.")
         return v
 
 # ── Schemas de SALIDA (Contrato JSON traducido a inglés) ──────
@@ -45,7 +45,7 @@ class DealerRegisterErrorResponse(BaseModel):
 class Dealer:
     def __init__(self, dealer_id: str, full_name: str, phone: str, 
                  email: str, vehicle_type: VehicleType, license_number: str, 
-                 status: DealerStatus = "pendiente_activacion"):
+                 status: DealerStatus = "pending_activation"):
         self.dealer_id = dealer_id
         self.full_name = full_name
         self.phone = phone

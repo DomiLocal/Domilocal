@@ -32,7 +32,7 @@ def register_dealer(payload: DealerCreate):
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
             content={
-                "message": "Registro exitoso. Tu cuenta está pendiente de activación.",
+                "message": "Registration successful. Your account is pending activation.",
                 "data": result_data.model_dump(),
                 "success": True
             }

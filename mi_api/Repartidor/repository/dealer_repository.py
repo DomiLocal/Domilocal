@@ -43,7 +43,7 @@ class DealerRepository:
             email=email,
             vehicle_type=vehicle_type,
             license_number=license_number,
-            status="pendiente_activacion" # Criterio de aceptación 2
+            status="pending_activation"
         )
         self._dealers.append(new_dealer)
         return new_dealer
