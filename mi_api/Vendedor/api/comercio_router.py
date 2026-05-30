@@ -1,91 +1,60 @@
 # ─────────────────────────────────────
-# CAPA API
-# Endpoints HTTP
+# API LAYER
+# HTTP Endpoints
 # ─────────────────────────────────────
 
 from fastapi import (
-
     APIRouter,
     HTTPException,
     status
-
 )
 
 from domain.comercio import (
-
-    ComercioCreate,
-    RegistroComercioResponse
-
+    MerchantCreate,
+    MerchantRegistrationResponse
 )
 
 from service.comercio_service import (
-
-    ComercioService
-
+    MerchantService
 )
 
 from repository.comercio_repository import (
-
-    comercio_repository
-
+    merchant_repository
 )
 
 
-router=APIRouter(
-
-    prefix="/api/v1/comercios",
-
-    tags=["Comercios"]
-
+router = APIRouter(
+    prefix="/api/v1/merchants",
+    tags=["Merchants"]
 )
 
 
-service=ComercioService(
-    repo=comercio_repository
+service = MerchantService(
+    repo=merchant_repository
 )
 
 
 @router.post(
-
-    "/registro",
-
-    response_model=RegistroComercioResponse,
-
+    "/register",
+    response_model=MerchantRegistrationResponse,
     status_code=status.HTTP_201_CREATED
-
 )
-
-def registrar_comercio(
-    datos:ComercioCreate
+def register_merchant(
+    data: MerchantCreate
 ):
-
-
     try:
-
-        return service.registrar(
-            datos
+        return service.register(
+            data
         )
-
 
     except ValueError as e:
-
-
         raise HTTPException(
-
             status_code=status.HTTP_409_CONFLICT,
-
             detail=str(e)
-
         )
 
-
     except Exception:
-
-
         raise HTTPException(
-
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-
-            detail="Base de datos no disponible"
-
+            detail="Database unavailable"
         )

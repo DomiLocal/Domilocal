@@ -1,34 +1,26 @@
 from fastapi import FastAPI
 
 from api.comercio_router import (
-    router as comercio_router
+    router as merchant_router
 )
 
 
-app=FastAPI(
-
+app = FastAPI(
     title="DomiLocal API",
-
-    description="API gestión comercios",
-
+    description="Merchant management API",
     version="1.0"
-
 )
 
 
 app.include_router(
-    comercio_router
+    merchant_router
 )
 
 
 @app.get("/")
-
 def root():
-
     return {
-
-        "mensaje":"API funcionando 🚀"
-
+        "message": "API is running 🚀"
     }
 
 

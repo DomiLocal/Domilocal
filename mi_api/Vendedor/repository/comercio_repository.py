@@ -1,74 +1,50 @@
 # ─────────────────────────────────────
-# CAPA REPOSITORIO
-# Simulación BD
+# REPOSITORY LAYER
+# Database simulation
 # ─────────────────────────────────────
 
-from domain.comercio import Comercio
+from domain.comercio import Merchant
 
 
-class ComercioRepository:
-
+class MerchantRepository:
 
     def __init__(self):
+        self._merchants = []
+        self._counter = 1
 
-        self._comercios=[]
-        self._contador=1
-
-
-    def obtener_por_nombre_direccion(
+    def get_by_name_address(
         self,
-        nombre,
-        direccion
+        name,
+        address
     ):
-
-
         return next(
-
             (
-
-                c for c in self._comercios
-
-                if c.nombre.lower()==nombre.lower()
+                m for m in self._merchants
+                if m.name.lower() == name.lower()
                 and
-                c.direccion.lower()==direccion.lower()
-
+                m.address.lower() == address.lower()
             ),
-
             None
-
         )
 
-
-    def crear(self,datos):
-
-
-        nuevo=Comercio(
-
-            id_comercio=f"COM-{self._contador:03}",
-
-            nombre=datos.nombre,
-
-            direccion=datos.direccion,
-
-            categoria=datos.categoria,
-
-            telefono=datos.telefono,
-
-            correo_contacto=datos.correo_contacto,
-
-            estado="pendiente_aprobacion"
-
+    def create(self, data):
+        new_merchant = Merchant(
+            id_merchant=f"MER-{self._counter:03}",
+            name=data.name,
+            address=data.address,
+            category=data.category,
+            phone=data.phone,
+            contact_email=data.contact_email,
+            status="pending_approval"
         )
 
-
-        self._comercios.append(
-            nuevo
+        self._merchants.append(
+            new_merchant
         )
 
-        self._contador+=1
+        self._counter += 1
 
-        return nuevo
+        return new_merchant
 
 
-
-comercio_repository=ComercioRepository()
+merchant_repository = MerchantRepository()

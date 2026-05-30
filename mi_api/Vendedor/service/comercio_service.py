@@ -1,64 +1,62 @@
 # ─────────────────────────────────────
-# CAPA SERVICIO
-# Lógica del negocio
+# SERVICE LAYER
+# Business logic
 # ─────────────────────────────────────
 
 from domain.comercio import (
-
-    ComercioCreate,
-    ComercioResponse,
-    RegistroComercioResponse
-
+    MerchantCreate,
+    MerchantResponse,
+    MerchantRegistrationResponse
 )
 
 from repository.comercio_repository import (
-    ComercioRepository
+    MerchantRepository
 )
 
 
-class ComercioService:
+class MerchantService:
 
 
     def __init__(
         self,
-        repo:ComercioRepository
+        repo: MerchantRepository
     ):
 
         self.repo=repo
 
 
-    def registrar(
+    def register(
         self,
-        datos:ComercioCreate
+        data: MerchantCreate
     ):
 
 
-        existe=self.repo.obtener_por_nombre_direccion(
+        existing_merchant = self.repo.get_by_name_address(
 
-            datos.nombre,
-            datos.direccion
+            data.name,
+            data.address
 
         )
 
 
-        if existe:
+        if existing_merchant:
 
             raise ValueError(
-                "Ya existe un comercio registrado con ese nombre y dirección."
+                "A merchant with that name and address already exists."
             )
 
 
-        nuevo=self.repo.crear(
-            datos
+        new_merchant = self.repo.create(
+            data
         )
 
 
-        return RegistroComercioResponse(
+        return MerchantRegistrationResponse(
 
-            mensaje="Comercio registrado exitosamente. Pendiente de aprobación.",
+            message="Merchant registered successfully. Pending approval.",
 
-            data=ComercioResponse(
-                **nuevo.to_response()
+            data=MerchantResponse(
+                **new_merchant.to_response()
             ),
 
             success=True

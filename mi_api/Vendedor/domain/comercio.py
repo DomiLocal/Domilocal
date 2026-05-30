@@ -1,6 +1,6 @@
 # ─────────────────────────────────────
-# CAPA DOMINIO
-# Reglas y modelos
+# DOMAIN LAYER
+# Rules and models
 # ─────────────────────────────────────
 
 from pydantic import (
@@ -11,103 +11,83 @@ from pydantic import (
 )
 
 
-CATEGORIAS_VALIDAS=[
-
-    "restaurante",
-    "farmacia",
-    "tienda de barrio",
-    "supermercado",
-    "panaderia",
-    "cafeteria"
-
+VALID_CATEGORIES = [
+    "restaurant",
+    "pharmacy",
+    "corner store",
+    "supermarket",
+    "bakery",
+    "coffee shop"
 ]
 
 
-class ComercioCreate(BaseModel):
-
-
-    nombre:str=Field(
+class MerchantCreate(BaseModel):
+    name: str = Field(
         ...,
         min_length=3
     )
 
-    direccion:str=Field(
+    address: str = Field(
         ...,
         min_length=5
     )
 
-    categoria:str
+    category: str
 
-    telefono:str=Field(
+    phone: str = Field(
         ...,
         min_length=10
     )
 
-    correo_contacto:EmailStr
+    contact_email: EmailStr
 
-
-    @field_validator("categoria")
+    @field_validator("category")
     @classmethod
-    def validar_categoria(cls,v):
-
-        if v.lower() not in CATEGORIAS_VALIDAS:
-
+    def validate_category(cls, value):
+        if value.lower() not in VALID_CATEGORIES:
             raise ValueError(
-                "La categoría indicada no es válida."
+                "The selected category is not valid."
             )
-
-        return v.lower()
-
-
-class ComercioResponse(BaseModel):
-
-    id_comercio:str
-    nombre:str
-    estado:str
+        return value.lower()
 
 
-class RegistroComercioResponse(BaseModel):
-
-    mensaje:str
-    data:ComercioResponse|None
-    success:bool
-
-
-class Comercio:
+class MerchantResponse(BaseModel):
+    id_merchant: str
+    name: str
+    status: str
 
 
+class MerchantRegistrationResponse(BaseModel):
+    message: str
+    data: MerchantResponse | None
+    success: bool
+
+
+class Merchant:
     def __init__(
         self,
-        id_comercio,
-        nombre,
-        direccion,
-        categoria,
-        telefono,
-        correo_contacto,
-        estado="pendiente_aprobacion"
+        id_merchant,
+        name,
+        address,
+        category,
+        phone,
+        contact_email,
+        status="pending_approval"
     ):
+        self.id_merchant = id_merchant
+        self.name = name
+        self.address = address
+        self.category = category
+        self.phone = phone
+        self.contact_email = contact_email
+        self.status = status
 
-
-        self.id_comercio=id_comercio
-        self.nombre=nombre
-        self.direccion=direccion
-        self.categoria=categoria
-        self.telefono=telefono
-        self.correo_contacto=correo_contacto
-        self.estado=estado
-
-
-    def visible_clientes(self):
-
-        return self.estado=="activo"
-
+    def visible_to_customers(self):
+        return self.status == "active"
 
     def to_response(self):
-
         return {
-
-            "id_comercio":self.id_comercio,
-            "nombre":self.nombre,
-            "estado":self.estado
-
+            "id_merchant": self.id_merchant,
+            "name": self.name,
+            "status": self.status
         }
