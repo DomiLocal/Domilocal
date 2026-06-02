@@ -34,44 +34,44 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         
         # Map field names to user-friendly messages
         field_messages = {
-            "full_name": "El campo 'full_name' es obligatorio.",
-            "email": "El campo 'email' es obligatorio.",
-            "password": "El campo 'password' es obligatorio.",
-            "phone": "El campo 'phone' es obligatorio.",
-            "main_address": "El campo 'main_address' es obligatorio."
+            "full_name": "The 'full_name' field is required.",
+            "email": "The 'email' field is required.",
+            "password": "The 'password' field is required.",
+            "phone": "The 'phone' field is required.",
+            "main_address": "The 'main_address' field is required."
         }
         
-        message = field_messages.get(field_name, f"El campo '{field_name}' es obligatorio.")
+        message = field_messages.get(field_name, f"The field '{field_name}' is required.")
     
-    # Caso 3 — Invalid password
+    # Case 3 — Invalid password
     elif "password" in error_location:
-        message = "La contraseña debe tener mínimo 8 caracteres e incluir al menos un número."
+        message = "Password must be at least 8 characters long and include at least one number."
     
-    # Caso 5 — Invalid email format (si aplica)
+    # Case 5 — Invalid email format (if applicable)
     elif "email" in error_location and "value_error" in error_type:
-        message = "El correo electrónico no es válido."
+        message = "The email address is not valid."
     
-    # Caso 1 — Invalid full name (con números)
+    # Case 1 — Invalid full name (with numbers)
     elif "full_name" in error_location:
         if "numbers" in error_message.lower():
-            message = "El nombre completo no puede contener números."
+            message = "Full name cannot contain numbers."
         else:
-            message = "El nombre completo debe tener mínimo 2 caracteres."
+            message = "Full name must have at least 2 characters."
     
-    # Caso 6 — Invalid phone
+    # Case 6 — Invalid phone
     elif "phone" in error_location:
         if "10 digits" in error_message:
-            message = "El número de teléfono debe tener exactamente 10 dígitos."
+            message = "Phone number must be exactly 10 digits."
         elif "only numbers" in error_message:
-            message = "El número de teléfono debe contener solo números."
+            message = "Phone number must contain only numbers."
         elif "start with number 3" in error_message:
-            message = "Los números de teléfono colombianos deben empezar con el número 3."
+            message = "Colombian phone numbers must start with the digit 3."
         else:
-            message = "El número de teléfono no es válido."
+            message = "Phone number is not valid."
     
-    # Caso 7 — Invalid address
+    # Case 7 — Invalid address
     elif "main_address" in error_location:
-        message = "La dirección principal debe tener mínimo 5 caracteres."
+        message = "Main address must have at least 5 characters."
     
     # Other validation errors
     else:
