@@ -1,20 +1,17 @@
 # ─────────────────────────────────────────────────────────────
-# CAPA API — Repartidor/api/dealer_api.py
+# CAPA API (HU1) — Repartidor/api/dealer_api.py
 # ─────────────────────────────────────────────────────────────
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
 
 from domain.dealer_domain import DealerCreate, DealerRegisterSuccessResponse, DealerRegisterErrorResponse
 from service.dealer_service import DealerService
-from repository.dealer_repository import dealer_repository
+from repository.dealer_repository import DealerRepository, get_dealer_repository
 
 router = APIRouter(
     prefix="/api/v1/repartidores",
     tags=["Dealers"]
 )
-
-# Inyección de dependencias manual del repositorio al servicio
-service = DealerService(repo=dealer_repository)
 
 @router.post(
     "/registro",
@@ -25,9 +22,11 @@ service = DealerService(repo=dealer_repository)
         409: {"model": DealerRegisterErrorResponse}
     }
 )
-def register_dealer(payload: DealerCreate):
+def register_dealer(payload: DealerCreate, repo: DealerRepository = Depends(get_dealer_repository)):
+    # Se genera el servicio con el repositorio unificado de FastAPI
+    registration_service = DealerService(repo=repo)
     try:
-        result_data = service.register(payload)
+        result_data = registration_service.register(payload)
         
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
@@ -38,7 +37,6 @@ def register_dealer(payload: DealerCreate):
             }
         )
     except ValueError as e:
-        # Captura errores de lógica de negocio (Duplicados de la capa servicio) -> HTTP 409
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
             content={
