@@ -11,7 +11,8 @@ Dealer.longitude = 0.0
 class DealerRepository:
     def __init__(self):
         self._dealers: list[Dealer] = []
-        self._assigned_orders: set[str] = set() 
+        self._assigned_orders: set[str] = set()
+        self._pending_assignments: dict[str, str] = {}  # order_id -> dealer_id
         self._seed()
 
     def _seed(self):
@@ -62,8 +63,9 @@ class DealerRepository:
         self._dealers.append(new_dealer)
         return new_dealer
 
-    def find_available_dealers(self) -> list[Dealer]:
-        return [d for d in self._dealers if d.status == "available"]
+    def find_available_dealers(self, exclude_ids: Optional[set] = None) -> list[Dealer]:
+        excluded = exclude_ids or set()
+        return [d for d in self._dealers if d.status == "available" and d.dealer_id not in excluded]
 
     def update_status(self, dealer_id: str, new_status: str) -> Optional[Dealer]:
         for d in self._dealers:
@@ -77,6 +79,18 @@ class DealerRepository:
 
     def lock_order(self, order_id: str):
         self._assigned_orders.add(order_id)
+
+    def unlock_order(self, order_id: str):
+        self._assigned_orders.discard(order_id)
+
+    def record_pending_assignment(self, order_id: str, dealer_id: str):
+        self._pending_assignments[order_id] = dealer_id
+
+    def get_pending_assignment_dealer(self, order_id: str) -> Optional[str]:
+        return self._pending_assignments.get(order_id)
+
+    def clear_pending_assignment(self, order_id: str):
+        self._pending_assignments.pop(order_id, None)
 
 # Creamos una única instancia aquí que se compartirá globalmente a través de FastAPI
 _global_repo_instance = DealerRepository()
