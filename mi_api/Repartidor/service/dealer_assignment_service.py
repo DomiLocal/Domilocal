@@ -13,25 +13,22 @@ class DealerAssignmentService:
     def calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         return math.sqrt((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2)
 
-    def assign_closest_dealer(self, order_id: str, store_lat: float, store_lng: float) -> Optional[AssignmentResponseData]:
-        # 1. BLOQUEO ABSOLUTO: Si el ID de la orden ya está registrado, lanzar excepción de negocio
+    def assign_closest_dealer(self, order_id: str, store_lat: float, store_lng: float, exclude_ids: Optional[set] = None) -> Optional[AssignmentResponseData]:
         if self.repo.is_order_already_assigned(order_id):
             raise ValueError(f"Order {order_id} has already been assigned to a dealer.")
 
-        # 2. Buscar repartidores disponibles
-        candidates = self.repo.find_available_dealers()
+        candidates = self.repo.find_available_dealers(exclude_ids=exclude_ids)
         if not candidates:
             return None
 
-        # 3. Encontrar el más cercano
         closest_dealer = min(
             candidates,
             key=lambda d: self.calculate_distance(store_lat, store_lng, d.latitude, d.longitude)
         )
 
-        # 4. Actualizar estados sincronizadamente en el repositorio central
         self.repo.update_status(closest_dealer.dealer_id, "assigned")
         self.repo.lock_order(order_id)
+        self.repo.record_pending_assignment(order_id, closest_dealer.dealer_id)
 
         print(f"[NOTIFICATION] Push notification sent to Dealer {closest_dealer.dealer_id}")
 
@@ -41,3 +38,15 @@ class DealerAssignmentService:
             dealer_name=closest_dealer.full_name,
             acceptance_timeout_seconds=60
         )
+
+    def reassign_after_timeout(self, order_id: str, original_dealer_id: str, store_lat: float, store_lng: float) -> Optional[AssignmentResponseData]:
+        if self.repo.get_pending_assignment_dealer(order_id) != original_dealer_id:
+            return None  # Ya fue aceptado; no hay nada que hacer
+
+        self.repo.update_status(original_dealer_id, "available")
+        self.repo.clear_pending_assignment(order_id)
+        self.repo.unlock_order(order_id)
+
+        print(f"[TIMEOUT] Dealer {original_dealer_id} no aceptó. Reasignando orden {order_id}...")
+
+        return self.assign_closest_dealer(order_id, store_lat, store_lng, exclude_ids={original_dealer_id})
