@@ -1,1 +1,1 @@
-# domain package
+# Package initialization
