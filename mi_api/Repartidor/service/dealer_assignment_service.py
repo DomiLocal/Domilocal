@@ -26,7 +26,7 @@ class DealerAssignmentService:
             key=lambda d: self.calculate_distance(store_lat, store_lng, d.latitude, d.longitude)
         )
 
-        self.repo.update_status(closest_dealer.dealer_id, "assigned")
+        self.repo.update_availability(closest_dealer.dealer_id, "unavailable")
         self.repo.lock_order(order_id)
         self.repo.record_pending_assignment(order_id, closest_dealer.dealer_id)
 
@@ -43,7 +43,7 @@ class DealerAssignmentService:
         if self.repo.get_pending_assignment_dealer(order_id) != original_dealer_id:
             return None  # Ya fue aceptado; no hay nada que hacer
 
-        self.repo.update_status(original_dealer_id, "available")
+        self.repo.update_availability(original_dealer_id, "available")
         self.repo.clear_pending_assignment(order_id)
         self.repo.unlock_order(order_id)
 

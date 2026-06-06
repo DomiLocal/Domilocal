@@ -12,11 +12,10 @@ class DealerRepository:
     def __init__(self):
         self._dealers: list[Dealer] = []
         self._assigned_orders: set[str] = set()
-        self._pending_assignments: dict[str, str] = {}  # order_id -> dealer_id
+        self._pending_assignments: dict[str, str] = {}
         self._seed()
 
     def _seed(self):
-        """Datos base estables para pruebas."""
         carlos = Dealer(
             dealer_id="R-00123",
             full_name="Carlos Pérez",
@@ -24,7 +23,8 @@ class DealerRepository:
             email="test@example.com",
             vehicle_type="moto",
             license_number="LIC-12345",
-            status="available"
+            account_status="active",
+            availability="available"
         )
         carlos.latitude = 7.121
         carlos.longitude = -73.121
@@ -37,11 +37,15 @@ class DealerRepository:
             email="juan.reparto@example.com",
             vehicle_type="bicycle",
             license_number="LIC-99999",
-            status="available"
+            account_status="active",
+            availability="available"
         )
         juan.latitude = 7.135
         juan.longitude = -73.135
         self._dealers.append(juan)
+
+    def find_by_id(self, dealer_id: str) -> Optional[Dealer]:
+        return next((d for d in self._dealers if d.dealer_id == dealer_id), None)
 
     def find_by_email(self, email: str) -> Optional[Dealer]:
         return next((d for d in self._dealers if d.email.lower() == email.lower()), None)
@@ -49,14 +53,15 @@ class DealerRepository:
     def find_by_license(self, license_number: str) -> Optional[Dealer]:
         return next((d for d in self._dealers if d.license_number == license_number), None)
 
-    def create(self, full_name: str, phone: str, email: str, 
+    def create(self, full_name: str, phone: str, email: str,
                vehicle_type: str, license_number: str) -> Dealer:
         short_id = str(uuid.uuid4()).split("-")[0].upper()
         dealer_id = f"R-{short_id[:5]}"
         new_dealer = Dealer(
             dealer_id=dealer_id, full_name=full_name, phone=phone,
             email=email, vehicle_type=vehicle_type, license_number=license_number,
-            status="pending_activation"
+            account_status="pending_activation",
+            availability=None
         )
         new_dealer.latitude = 7.122
         new_dealer.longitude = -73.122
@@ -65,12 +70,24 @@ class DealerRepository:
 
     def find_available_dealers(self, exclude_ids: Optional[set] = None) -> list[Dealer]:
         excluded = exclude_ids or set()
-        return [d for d in self._dealers if d.status == "available" and d.dealer_id not in excluded]
+        return [
+            d for d in self._dealers
+            if d.account_status == "active"
+            and d.availability == "available"
+            and d.dealer_id not in excluded
+        ]
 
-    def update_status(self, dealer_id: str, new_status: str) -> Optional[Dealer]:
+    def update_account_status(self, dealer_id: str, account_status: str) -> Optional[Dealer]:
         for d in self._dealers:
             if d.dealer_id == dealer_id:
-                d.status = new_status
+                d.account_status = account_status
+                return d
+        return None
+
+    def update_availability(self, dealer_id: str, availability: str) -> Optional[Dealer]:
+        for d in self._dealers:
+            if d.dealer_id == dealer_id:
+                d.availability = availability
                 return d
         return None
 
@@ -92,7 +109,7 @@ class DealerRepository:
     def clear_pending_assignment(self, order_id: str):
         self._pending_assignments.pop(order_id, None)
 
-# Creamos una única instancia aquí que se compartirá globalmente a través de FastAPI
+
 _global_repo_instance = DealerRepository()
 
 def get_dealer_repository() -> DealerRepository:
