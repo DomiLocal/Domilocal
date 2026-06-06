@@ -15,12 +15,9 @@ _pycache_/
 .env.example
 
 # Archivos específicos
-main.py
 requirements.txt
 
 # Sistema
 .DS_Store
 Thumbs.db
 
-
-mi_api/Repartidor/tests
