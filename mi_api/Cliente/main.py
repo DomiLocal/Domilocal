@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 from api.client_api import router as client_router
+from api.order_api import router as order_router
 
 
 # ── FastAPI application ──────────────────────────────────────
@@ -20,63 +21,65 @@ app = FastAPI(
 
 # ── Global exception handler for validation errors (422 → 400) ──
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    
-    # Get the first validation error
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError
+):
+
     error = exc.errors()[0]
     error_location = error.get("loc", [])
     error_type = error.get("type", "")
     error_message = error.get("msg", "Validation error")
-    
-    # Caso 4 — Missing required fields
+
+    # Missing required fields
     if error_type == "missing":
         field_name = error_location[-1] if error_location else "unknown"
-        
-        # Map field names to user-friendly messages
+
         field_messages = {
             "full_name": "The 'full_name' field is required.",
             "email": "The 'email' field is required.",
             "password": "The 'password' field is required.",
             "phone": "The 'phone' field is required.",
-            "main_address": "The 'main_address' field is required."
+            "main_address": "The 'main_address' field is required.",
+
+            # Order fields
+            "merchant_id": "The 'merchant_id' field is required.",
+            "items": "The 'items' field is required.",
+            "delivery_address": "The 'delivery_address' field is required.",
+            "payment_method": "The 'payment_method' field is required."
         }
-        
-        message = field_messages.get(field_name, f"The field '{field_name}' is required.")
-    
-    # Case 3 — Invalid password
+
+        message = field_messages.get(
+            field_name,
+            f"The field '{field_name}' is required."
+        )
+
+    # Client validations
     elif "password" in error_location:
         message = "Password must be at least 8 characters long and include at least one number."
-    
-    # Case 5 — Invalid email format (if applicable)
-    elif "email" in error_location and "value_error" in error_type:
+
+    elif "email" in error_location:
         message = "The email address is not valid."
-    
-    # Case 1 — Invalid full name (with numbers)
+
     elif "full_name" in error_location:
-        if "numbers" in error_message.lower():
-            message = "Full name cannot contain numbers."
-        else:
-            message = "Full name must have at least 2 characters."
-    
-    # Case 6 — Invalid phone
+        message = "Full name is not valid."
+
     elif "phone" in error_location:
-        if "10 digits" in error_message:
-            message = "Phone number must be exactly 10 digits."
-        elif "only numbers" in error_message:
-            message = "Phone number must contain only numbers."
-        elif "start with number 3" in error_message:
-            message = "Colombian phone numbers must start with the digit 3."
-        else:
-            message = "Phone number is not valid."
-    
-    # Case 7 — Invalid address
+        message = "Phone number is not valid."
+
     elif "main_address" in error_location:
-        message = "Main address must have at least 5 characters."
-    
-    # Other validation errors
+        message = "Main address is not valid."
+
+    # Order validations
+    elif "delivery_address" in error_location:
+        message = "Delivery address is required."
+
+    elif "payment_method" in error_location:
+        message = "Payment method is required."
+
     else:
         message = error_message
-    
+
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={
@@ -89,6 +92,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # ── Register routers ─────────────────────────────────────────
 app.include_router(client_router)
+app.include_router(order_router)
 
 
 # ── Root endpoint ────────────────────────────────────────────
@@ -102,7 +106,7 @@ def root():
     }
 
 
-# ── Run directly with: python main.py ───────────────────────
+# ── Run directly with: python main.py ────────────────────────
 if __name__ == "__main__":
 
     import uvicorn
