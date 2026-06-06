@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
+from fastapi.responses import JSONResponse
 
 from domain.order_domain import OrderCreate
 from service.order_service import OrderService
@@ -24,7 +25,10 @@ def create_order(order_data: OrderCreate):
 
     except ValueError as e:
 
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            content={
+                "message": str(e),
+                "success": False
+            }
         )
