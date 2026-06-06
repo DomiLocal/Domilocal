@@ -4,9 +4,9 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional, Literal
 
-# Reglas de tipos del negocio
 VehicleType = Literal["moto", "bicycle", "car"]
-DealerStatus = Literal["pending_activation", "active", "inactive"]
+AccountStatus = Literal["pending_activation", "active", "inactive"]
+AvailabilityStatus = Literal["available", "unavailable"]
 
 # ── Schema de ENTRADA (Validación del formulario) ──────
 class DealerCreate(BaseModel):
@@ -25,11 +25,11 @@ class DealerCreate(BaseModel):
             raise ValueError("Password must be at least 8 characters long and include at least one number.")
         return v
 
-# ── Schemas de SALIDA (Contrato JSON traducido a inglés) ──────
+# ── Schemas de SALIDA (HU1) ──────
 class DealerResponseData(BaseModel):
-    driver_id: str
+    dealer_id: str
     name: str
-    status: DealerStatus
+    status: AccountStatus
 
 class DealerRegisterSuccessResponse(BaseModel):
     message: str
@@ -41,22 +41,39 @@ class DealerRegisterErrorResponse(BaseModel):
     data: Optional[dict] = None
     success: bool = False
 
+# ── Schemas de disponibilidad (HU3) ────────────────────────
+class DealerAvailabilityResponseData(BaseModel):
+    dealer_id: str
+    status: AvailabilityStatus
+
+class DealerAvailabilitySuccessResponse(BaseModel):
+    message: str
+    data: DealerAvailabilityResponseData
+    success: bool = True
+
+class DealerAvailabilityErrorResponse(BaseModel):
+    message: str
+    data: Optional[dict] = None
+    success: bool = False
+
 # ── Entidad del Dominio ────────────
 class Dealer:
-    def __init__(self, dealer_id: str, full_name: str, phone: str, 
-                 email: str, vehicle_type: VehicleType, license_number: str, 
-                 status: DealerStatus = "pending_activation"):
+    def __init__(self, dealer_id: str, full_name: str, phone: str,
+                 email: str, vehicle_type: VehicleType, license_number: str,
+                 account_status: AccountStatus = "pending_activation",
+                 availability: Optional[AvailabilityStatus] = None):
         self.dealer_id = dealer_id
         self.full_name = full_name
         self.phone = phone
         self.email = email
         self.vehicle_type = vehicle_type
         self.license_number = license_number
-        self.status = status
+        self.account_status = account_status
+        self.availability = availability
 
     def to_dict(self) -> dict:
         return {
-            "driver_id": self.dealer_id,
+            "dealer_id": self.dealer_id,
             "name": self.full_name,
-            "status": self.status
+            "status": self.account_status
         }
