@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 # Importamos ambos controladores separados
 from api.dealer_api import router as dealer_registration_router
 from api.dealer_assignment_api import router as dealer_assignment_router
+from api.dealer_delivery_api import router as dealer_delivery_router
 
 app = FastAPI(
     title="Delivery App - Central API (Multi-HU)",
@@ -42,6 +43,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 # Registramos de forma independiente ambos módulos en la misma app de Uvicorn
 app.include_router(dealer_registration_router)
 app.include_router(dealer_assignment_router)
+app.include_router(dealer_delivery_router)
 
 if __name__ == "__main__":
     import uvicorn
