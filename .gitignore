@@ -15,7 +15,6 @@ _pycache_/
 .env.example
 
 # Archivos específicos
-main.py
 requirements.txt
 
 # Sistema
