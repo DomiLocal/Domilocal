@@ -19,13 +19,18 @@ class OrderService:
             raise ValueError(
                 "It is not possible to create an order with an empty cart."
             )
+        
+        if not order_data.delivery_address:
+            raise ValueError(
+                "delivery_address is required."
+            )
 
         # Regla 2: todos los productos deben ser del mismo comercio
         store_ids = {item.store_id for item in order_data.items}
 
         if len(store_ids) > 1:
             raise ValueError(
-                "You can only order products from the same store in a single order."
+                "You can only order products from one business per order."
             )
 
         # Calcular subtotal

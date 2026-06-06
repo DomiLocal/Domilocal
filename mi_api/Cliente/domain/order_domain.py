@@ -11,7 +11,7 @@ class OrderItemCreate(BaseModel):
 
 class OrderCreate(BaseModel):
     items: List[OrderItemCreate]
-    delivery_address: str = Field(..., min_length=5)
+    delivery_address: str | None = None
     payment_method: str
 
     @field_validator("payment_method")
