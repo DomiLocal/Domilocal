@@ -39,12 +39,12 @@ router = APIRouter(
             "description": "Base de datos no disponible.",
         },
     },
-    summary="Confirmar entrega de un pedido",
+    summary="Confirm order delivery",
     description=(
-        "El repartidor marca un pedido como entregado. "
-        "El pedido debe estar en estado `in_transit`. "
-        "Actualiza el estado a `delivered`, registra la hora exacta de entrega "
-        "y deja al repartidor en estado `available`."
+        "The dealer marks an order as delivered. "
+        "The order must be in `in_transit` status. "
+        "Updates the status to `delivered`, records the exact delivery time "
+        "and sets the dealer back to `available`."
     ),
 )
 def confirm_delivery(
