@@ -4,6 +4,7 @@
 from typing import Optional
 import uuid
 from domain.dealer_domain import Dealer
+from domain.dealer_delivery_domain import Order
 
 Dealer.latitude = 0.0
 Dealer.longitude = 0.0
@@ -13,7 +14,9 @@ class DealerRepository:
         self._dealers: list[Dealer] = []
         self._assigned_orders: set[str] = set()
         self._pending_assignments: dict[str, str] = {}
+        self._orders: dict[str, Order] = {}
         self._seed()
+        self._seed_orders()
 
     def _seed(self):
         carlos = Dealer(
@@ -43,6 +46,15 @@ class DealerRepository:
         juan.latitude = 7.135
         juan.longitude = -73.135
         self._dealers.append(juan)
+
+    def _seed_orders(self):
+        # PED-0456 en tránsito, asignado a Carlos → Carlos queda unavailable
+        self._orders["PED-0456"] = Order("PED-0456", "in_transit", "R-00123")
+        self.update_availability("R-00123", "unavailable")
+
+        # Pedidos en estado incorrecto para pruebas del Caso 2
+        self._orders["PED-RECEIVED-001"] = Order("PED-RECEIVED-001", "received")
+        self._orders["PED-PREP-001"] = Order("PED-PREP-001", "in_preparation")
 
     def find_by_id(self, dealer_id: str) -> Optional[Dealer]:
         return next((d for d in self._dealers if d.dealer_id == dealer_id), None)
@@ -108,6 +120,23 @@ class DealerRepository:
 
     def clear_pending_assignment(self, order_id: str):
         self._pending_assignments.pop(order_id, None)
+
+    # ── Métodos de Órdenes (HU-C03) ──────────────────────────
+    def find_order_by_id(self, order_id: str) -> Optional[Order]:
+        return self._orders.get(order_id)
+
+    def create_order(self, order_id: str, status: str, dealer_id: Optional[str] = None) -> Order:
+        order = Order(order_id, status, dealer_id)
+        self._orders[order_id] = order
+        return order
+
+    def update_order_status(self, order_id: str, status: str, delivery_time=None) -> Optional[Order]:
+        order = self._orders.get(order_id)
+        if order:
+            order.status = status
+            if delivery_time is not None:
+                order.delivery_time = delivery_time
+        return order
 
 
 _global_repo_instance = DealerRepository()
