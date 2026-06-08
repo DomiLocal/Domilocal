@@ -1,3 +1,3 @@
-from .product_repository import ProductRepository
+from .comercio_pedido_repository import MerchantOrderRepository, merchant_order_repository
 
-__all__ = ["ProductRepository"]
+__all__ = ["MerchantOrderRepository", "merchant_order_repository"]

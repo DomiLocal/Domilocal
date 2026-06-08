@@ -1,3 +1,7 @@
-from .product_domain import ProductCreate, Product
+from .comercio_pedido_domain import (
+    OrderStatus,
+    ProductSummary,
+    OrderSummary,
+)
 
-__all__ = ["ProductCreate", "Product"]
+__all__ = ["OrderStatus", "ProductSummary", "OrderSummary"]
