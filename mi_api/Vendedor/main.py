@@ -12,8 +12,6 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from api.comercio_pedido_router import router as merchant_order_router
-from api.comercio_router import router as comercio_router
-from api.order_api import router as order_router
 from api.pedido_router import router as pedido_router
 from api.v1.product_router import router as product_router
 
@@ -50,8 +48,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # Register routers
 app.include_router(merchant_order_router)
-app.include_router(comercio_router)
-app.include_router(order_router)
 app.include_router(pedido_router)
 app.include_router(product_router)
 
