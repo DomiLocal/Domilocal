@@ -29,6 +29,7 @@ class DealerAssignmentService:
         self.repo.update_availability(closest_dealer.dealer_id, "unavailable")
         self.repo.lock_order(order_id)
         self.repo.record_pending_assignment(order_id, closest_dealer.dealer_id)
+        self.repo.create_order(order_id, "in_transit", closest_dealer.dealer_id)
 
         print(f"[NOTIFICATION] Push notification sent to Dealer {closest_dealer.dealer_id}")
 

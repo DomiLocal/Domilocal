@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, HttpUrl
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from uuid import uuid4
 
@@ -8,8 +8,6 @@ class ProductCreate(BaseModel):
     price: float = Field(..., gt=0)
     stock: Optional[int] = Field(default=0, ge=0)
     description: Optional[str] = Field(default=None, max_length=500)
-    category: Optional[str] = Field(default=None, max_length=50)
-    photo_url: Optional[HttpUrl] = Field(default=None)
 
     @field_validator("name")
     @classmethod

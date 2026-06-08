@@ -33,8 +33,6 @@ class ProductService:
         existing_product.price = updated_data.price
         existing_product.stock = updated_data.stock
         existing_product.description = updated_data.description
-        existing_product.category = updated_data.category
-        existing_product.photo_url = updated_data.photo_url
         existing_product.update_availability()
 
         self.repo.update(product_id, existing_product)
