@@ -16,12 +16,12 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from estado_pedido.api.pedido_router import router as estado_pedido_router
+    from api.pedido_router import router as estado_pedido_router
 except ImportError:
     estado_pedido_router = None
 
 try:
-    from Gestio_productos.api.v1.product_router import router as product_router
+    from api.v1.product_router import router as product_router
 except ImportError:
     product_router = None
 
