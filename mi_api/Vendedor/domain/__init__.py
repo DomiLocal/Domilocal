@@ -3,5 +3,6 @@ from .comercio_pedido_domain import (
     ProductSummary,
     OrderSummary,
 )
+from .product_domain import ProductCreate
 
-__all__ = ["OrderStatus", "ProductSummary", "OrderSummary"]
+__all__ = ["OrderStatus", "ProductSummary", "OrderSummary", "ProductCreate"]
