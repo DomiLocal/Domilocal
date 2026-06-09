@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from api.dealer_api import router as dealer_registration_router
 from api.dealer_assignment_api import router as dealer_assignment_router
 from api.dealer_delivery_api import router as dealer_delivery_router
+from api.dealer_active_order_api import router as dealer_active_order_router
 
 app = FastAPI(
     title="Delivery App - Central API (Multi-HU)",
@@ -44,6 +45,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 app.include_router(dealer_registration_router)
 app.include_router(dealer_assignment_router)
 app.include_router(dealer_delivery_router)
+app.include_router(dealer_active_order_router)
 
 if __name__ == "__main__":
     import uvicorn
