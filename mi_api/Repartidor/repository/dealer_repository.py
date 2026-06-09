@@ -2,9 +2,13 @@
 # CAPA REPOSITORIO — Repartidor/repository/dealer_repository.py
 # ─────────────────────────────────────────────────────────────
 from typing import Optional
+import urllib.parse
 import uuid
 from domain.dealer_domain import Dealer
 from domain.dealer_delivery_domain import Order
+from domain.dealer_active_order_domain import (
+    ActiveOrderDetail, Merchant, Customer, Product
+)
 
 Dealer.latitude = 0.0
 Dealer.longitude = 0.0
@@ -15,8 +19,10 @@ class DealerRepository:
         self._assigned_orders: set[str] = set()
         self._pending_assignments: dict[str, str] = {}
         self._orders: dict[str, Order] = {}
+        self._active_order_details: dict[str, ActiveOrderDetail] = {}
         self._seed()
         self._seed_orders()
+        self._seed_active_order_details()
 
     def _seed(self):
         carlos = Dealer(
@@ -121,6 +127,25 @@ class DealerRepository:
     def clear_pending_assignment(self, order_id: str):
         self._pending_assignments.pop(order_id, None)
 
+    def _seed_active_order_details(self):
+        address = "Carrera 10 #45-20, Apto 301"
+        map_link = "https://www.google.com/maps/search/?api=1&query=" + urllib.parse.quote(address)
+        self._active_order_details["PED-0456"] = ActiveOrderDetail(
+            order_id="PED-0456",
+            merchant=Merchant(name="Tienda La Esquina", address="Calle 5 #12-30, Bucaramanga"),
+            customer=Customer(
+                name="Ana Gómez",
+                phone="3001234567",
+                delivery_address=address,
+                map_link=map_link,
+                notes="Dejar en portería si no hay respuesta",
+            ),
+            products=[
+                Product(name="Agua 500ml", quantity=2),
+                Product(name="Pan tajado", quantity=1),
+            ],
+        )
+
     # ── Métodos de Órdenes (HU-C03) ──────────────────────────
     def find_order_by_id(self, order_id: str) -> Optional[Order]:
         return self._orders.get(order_id)
@@ -137,6 +162,25 @@ class DealerRepository:
             if delivery_time is not None:
                 order.delivery_time = delivery_time
         return order
+
+    # ── Métodos de pedido activo (HU-C05) ────────────────────
+    def find_active_order_by_dealer_id(self, dealer_id: str) -> Optional[ActiveOrderDetail]:
+        active_statuses = {"received", "in_preparation", "in_transit"}
+        for order in self._orders.values():
+            if order.dealer_id == dealer_id and order.status in active_statuses:
+                return self._active_order_details.get(order.order_id)
+        return None
+
+    def create_active_order_detail(
+        self,
+        order_id: str,
+        merchant: Merchant,
+        customer: Customer,
+        products: list[Product],
+    ) -> ActiveOrderDetail:
+        detail = ActiveOrderDetail(order_id, merchant, customer, products)
+        self._active_order_details[order_id] = detail
+        return detail
 
 
 _global_repo_instance = DealerRepository()
