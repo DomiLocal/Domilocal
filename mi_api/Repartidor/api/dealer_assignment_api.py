@@ -30,10 +30,10 @@ async def _schedule_timeout_reassignment(order_id: str, dealer_id: str, repo: De
 
 @router.post(
     "/pedidos/{order_id}/asignar-repartidor",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
     response_model=DealerAssignmentSuccessResponse,
     responses={
-        200: {"model": DealerAssignmentSuccessResponse},
+        201: {"model": DealerAssignmentSuccessResponse},
         400: {"model": DealerAssignmentErrorResponse},
         404: {"model": DealerAssignmentErrorResponse}
     }
@@ -54,7 +54,7 @@ async def assign_dealer_to_order(
 
         if not assignment_data:
             return JSONResponse(
-                status_code=status.HTTP_200_OK,
+                status_code=status.HTTP_201_CREATED,
                 content={
                     "message": "No dealers available at this time. Retrying in 30 seconds.",
                     "data": None,
@@ -66,7 +66,7 @@ async def assign_dealer_to_order(
             result = service.reassign_after_timeout(order_id, assignment_data.dealer_id, STORE_LAT, STORE_LNG)
             if result:
                 return JSONResponse(
-                    status_code=status.HTTP_200_OK,
+                    status_code=status.HTTP_201_CREATED,
                     content={
                         "message": f"Dealer {assignment_data.dealer_id} did not accept. Reassigned to dealer {result.dealer_id}.",
                         "data": result.model_dump(),
@@ -74,7 +74,7 @@ async def assign_dealer_to_order(
                     }
                 )
             return JSONResponse(
-                status_code=status.HTTP_200_OK,
+                status_code=status.HTTP_201_CREATED,
                 content={
                     "message": f"Dealer {assignment_data.dealer_id} did not accept. No other dealers available.",
                     "data": None,
@@ -84,7 +84,7 @@ async def assign_dealer_to_order(
 
         background_tasks.add_task(_schedule_timeout_reassignment, order_id, assignment_data.dealer_id, repo)
         return JSONResponse(
-            status_code=status.HTTP_200_OK,
+            status_code=status.HTTP_201_CREATED,
             content={
                 "message": "Dealer assigned successfully.",
                 "data": assignment_data.model_dump(),

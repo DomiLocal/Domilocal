@@ -19,10 +19,10 @@ router = APIRouter(
 
 @router.patch(
     "/pedidos/{id}/confirmar-entrega",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
     response_model=DeliveryConfirmationSuccessResponse,
     responses={
-        200: {
+        201: {
             "model": DeliveryConfirmationSuccessResponse,
             "description": "Entrega confirmada exitosamente.",
         },
@@ -55,7 +55,7 @@ def confirm_delivery(
     try:
         result = service.confirm_delivery(id)
         return JSONResponse(
-            status_code=status.HTTP_200_OK,
+            status_code=status.HTTP_201_CREATED,
             content={
                 "message": "Delivery confirmed successfully.",
                 "data": result.model_dump(),

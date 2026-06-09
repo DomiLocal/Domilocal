@@ -23,8 +23,9 @@ router = APIRouter()
         "merchant info, customer data, delivery address with map link, "
         "product list, and special notes."
     ),
+    status_code=status.HTTP_201_CREATED,
     responses={
-        200: {"model": ActiveOrderSuccessResponse},
+        201: {"model": ActiveOrderSuccessResponse},
         404: {"model": ActiveOrderErrorResponse},
         503: {"model": ActiveOrderErrorResponse},
     },
@@ -62,7 +63,7 @@ def get_active_order(
         products=detail.products,
     )
     return JSONResponse(
-        status_code=status.HTTP_200_OK,
+        status_code=status.HTTP_201_CREATED,
         content={
             "message": "Order details retrieved successfully.",
             "data": response_data.model_dump(),

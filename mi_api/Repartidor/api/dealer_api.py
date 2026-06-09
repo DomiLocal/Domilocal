@@ -52,7 +52,7 @@ def register_dealer(payload: DealerCreate, repo: DealerRepository = Depends(get_
 
 @router.post(
     "/{dealer_id}/confirmar",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
     response_model=DealerRegisterSuccessResponse,
     responses={
         404: {"model": DealerRegisterErrorResponse},
@@ -64,7 +64,7 @@ def confirm_dealer(dealer_id: str, repo: DealerRepository = Depends(get_dealer_r
     try:
         result = service.confirm_dealer(dealer_id)
         return JSONResponse(
-            status_code=status.HTTP_200_OK,
+            status_code=status.HTTP_201_CREATED,
             content={
                 "message": "Account confirmed successfully.",
                 "data": result.model_dump(),
@@ -85,7 +85,7 @@ def confirm_dealer(dealer_id: str, repo: DealerRepository = Depends(get_dealer_r
 
 @router.patch(
     "/{dealer_id}/disponibilidad",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
     response_model=DealerAvailabilitySuccessResponse,
     responses={
         400: {"model": DealerAvailabilityErrorResponse},
@@ -97,7 +97,7 @@ def toggle_availability(dealer_id: str, repo: DealerRepository = Depends(get_dea
     try:
         result = service.toggle_availability(dealer_id)
         return JSONResponse(
-            status_code=status.HTTP_200_OK,
+            status_code=status.HTTP_201_CREATED,
             content={
                 "message": "Availability status updated successfully.",
                 "data": result.model_dump(),
