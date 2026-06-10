@@ -1,3 +1,4 @@
+from datetime import datetime
 from domain.order_domain import (
     OrderCreate,
     OrderCancellationRequest,
@@ -48,7 +49,10 @@ class OrderService:
             delivery_address=order_data.delivery_address,
             payment_method=order_data.payment_method,
             total=total,
-            status="received"
+            status="received",
+            status_history=[
+                {"status": "received", "time": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
+            ]
         )
 
         self.repo.create(order)
@@ -83,7 +87,7 @@ class OrderService:
             "delivered"
         ]:
             raise ValueError(
-                "Unable to cancel the order. The driver is already on the way."
+                "Unable to cancel the order. The dealer is already on the way."
             )
 
         if order.status not in [
@@ -95,6 +99,9 @@ class OrderService:
             )
 
         order.status = "cancelled"
+        order.status_history.append(
+            {"status": "cancelled", "time": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
+        )
 
         return {
             "message": "Order cancelled successfully.",

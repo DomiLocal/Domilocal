@@ -13,18 +13,15 @@ class OrderStatusService:
         if not order:
             raise ValueError("Order not found.")
 
+        dealer = order.dealer if order.status == "in_transit" else None
+
         return {
             "message": "Order status retrieved successfully.",
             "data": {
                 "order_id": order.order_id,
                 "status": order.status,
-                "driver": None,
-                "status_history": [
-                    {
-                        "status": order.status,
-                        "time": "2026-06-09T20:00:00Z"
-                    }
-                ]
+                "dealer": dealer,
+                "status_history": order.status_history
             },
             "success": True
         }
