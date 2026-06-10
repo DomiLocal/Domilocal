@@ -12,6 +12,8 @@ class ProductService:
         merchant = MERCHANTS.get(merchant_id)
         if not merchant:
             raise LookupError("Merchant not found.")
+        if merchant["status"] == "inactive":
+            raise ValueError("This business is currently unavailable.")
         if merchant["status"] != "active":
             raise ValueError("Merchant is not active.")
 
