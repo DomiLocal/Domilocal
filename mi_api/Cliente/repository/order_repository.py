@@ -19,5 +19,18 @@ class OrderRepository:
     def get_all(self) -> list[Order]:
         return self._orders.copy()
 
+    def get_by_id(
+        self,
+        order_id: str
+    ):
+        return next(
+            (
+                order
+                for order in self._orders
+                if order.order_id == order_id
+            ),
+            None
+        )
+
 
 order_repository = OrderRepository()
