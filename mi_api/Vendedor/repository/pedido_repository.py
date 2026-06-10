@@ -1,21 +1,23 @@
 from domain.pedido import Pedido, EstadoPedido
+from repository.shared_store import ORDERS
 
 
 class RepositorioPedido:
 
-    def __init__(self):
-        self._pedidos = {
-            "PED-0789": Pedido(
-                id_pedido="PED-0789",
-                estado=EstadoPedido.EN_PREPARACION
-            )
-        }
-
     def obtener_por_id(self, id_pedido: str):
-        return self._pedidos.get(id_pedido)
+        data = ORDERS.get(id_pedido)
+        if not data:
+            return None
+        return Pedido(
+            id_pedido=data["order_id"],
+            estado=EstadoPedido(data["status"]),
+            fecha_actualizacion=data.get("updated_at"),
+        )
 
     def guardar(self, pedido: Pedido):
-        self._pedidos[pedido.id_pedido] = pedido
+        if pedido.id_pedido in ORDERS:
+            ORDERS[pedido.id_pedido]["status"] = pedido.estado.value
+            ORDERS[pedido.id_pedido]["updated_at"] = pedido.fecha_actualizacion
         return pedido
 
 

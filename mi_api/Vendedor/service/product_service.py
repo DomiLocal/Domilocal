@@ -1,48 +1,65 @@
-from repository.product_repository import ProductRepository
-from domain.product_domain import ProductCreate, Product
 from typing import Dict, Any
+from domain.product_domain import ProductCreate, Product
+from repository.product_repository import ProductRepository
+from repository.shared_store import MERCHANTS
+
 
 class ProductService:
     def __init__(self, repository: ProductRepository):
         self.repo = repository
 
-    def add_product(self, product_data: ProductCreate) -> Dict[str, Any]:
-        # Rule: if stock is 0, available=False
+    def _validate_merchant(self, merchant_id: str):
+        merchant = MERCHANTS.get(merchant_id)
+        if not merchant:
+            raise LookupError("Merchant not found.")
+        if merchant["status"] != "active":
+            raise ValueError("Merchant is not active.")
+
+    def add_product(self, merchant_id: str, product_data: ProductCreate) -> Dict[str, Any]:
+        self._validate_merchant(merchant_id)
+
         new_product = Product(**product_data.model_dump())
         new_product.update_availability()
-
-        self.repo.save(new_product)
+        self.repo.save(merchant_id, new_product)
 
         message = (
-            "Product added. Marked as unavailable because stock is 0."
+            "Product added. Marked as unavailable due to zero stock."
             if not new_product.available
             else "Product added successfully to the catalog."
         )
         return {
             "message": message,
             "data": new_product.model_dump(),
-            "success": True
+            "success": True,
         }
 
     def update_product(self, merchant_id: str, product_id: str, updated_data: ProductCreate) -> Dict[str, Any]:
-        existing_product = self.repo.get_by_id(product_id)
+        self._validate_merchant(merchant_id)
+
+        existing_product = self.repo.get_by_id(merchant_id, product_id)
         if not existing_product:
-            raise ValueError("Product not found")
+            raise LookupError("Product not found.")
 
         existing_product.name = updated_data.name
         existing_product.price = updated_data.price
         existing_product.stock = updated_data.stock
         existing_product.description = updated_data.description
         existing_product.update_availability()
+        self.repo.update(merchant_id, product_id, existing_product)
 
-        self.repo.update(product_id, existing_product)
         return {
-            "message": "Product updated successfully",
+            "message": "Product updated successfully.",
             "data": existing_product.model_dump(),
-            "success": True
+            "success": True,
         }
 
     def delete_product(self, merchant_id: str, product_id: str) -> Dict[str, Any]:
-        if not self.repo.delete(product_id):
-            raise ValueError("Product not found")
-        return {"message": "Product deleted", "success": True}
+        self._validate_merchant(merchant_id)
+
+        if not self.repo.delete(merchant_id, product_id):
+            raise LookupError("Product not found.")
+
+        return {
+            "message": "Product deleted successfully.",
+            "success": True,
+        }
