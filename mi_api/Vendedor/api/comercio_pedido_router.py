@@ -5,12 +5,12 @@ from typing import Optional
 from service.comercio_pedido_service import merchant_order_service
 
 router = APIRouter(
-    prefix="/api/v1/comercios",
-    tags=["Pedidos del Comercio"]
+    prefix="/api/v1/merchants",
+    tags=["Merchant Orders"]
 )
 
 
-@router.get("/{id}/pedidos")
+@router.get("/{id}/orders")
 def get_merchant_orders_endpoint(
     id: str,
     status_filter: Optional[str] = Query(None, alias="status")

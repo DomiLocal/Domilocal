@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from typing import Optional
 from uuid import uuid4
 
@@ -8,13 +8,6 @@ class ProductCreate(BaseModel):
     price: float = Field(..., gt=0)
     stock: Optional[int] = Field(default=0, ge=0)
     description: Optional[str] = Field(default=None, max_length=500)
-
-    @field_validator("name")
-    @classmethod
-    def validate_name_no_numbers(cls, v: str) -> str:
-        if any(char.isdigit() for char in v):
-            raise ValueError("Name cannot contain numbers")
-        return v
 
 # ----- Internal entity (with ID and availability) -----
 class Product(ProductCreate):

@@ -5,12 +5,12 @@ from domain.comercio_domain import ComercioCreate
 from service.comercio_service import comercio_service
 
 router = APIRouter(
-    prefix="/api/v1/comercios",
-    tags=["Registro de Comercio"]
+    prefix="/api/v1/merchants",
+    tags=["Merchant Registration"]
 )
 
 
-@router.post("/registro", status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 def register_comercio(data: ComercioCreate):
     try:
         result = comercio_service.register_comercio(data)
