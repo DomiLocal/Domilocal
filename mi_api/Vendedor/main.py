@@ -2,11 +2,12 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 from api.comercio_router import router as comercio_router
+from api.merchant_status_router import router as merchant_status_router
 from api.comercio_pedido_router import router as merchant_order_router
 from api.pedido_router import router as pedido_router
 from api.v1.product_router import router as product_router
@@ -16,6 +17,14 @@ app = FastAPI(
     title="Vendedor API — DomiLocal",
     version="1.0.0"
 )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": exc.detail, "data": None, "success": False},
+    )
 
 
 @app.exception_handler(RequestValidationError)
@@ -39,9 +48,11 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-# comercio_router must be registered before merchant_order_router so that the
-# static path /registro is matched before the dynamic /{id}/pedidos segment.
+# comercio_router must be registered before merchant_status_router and
+# merchant_order_router so that the static path /register is matched before
+# the dynamic /{id} segment.
 app.include_router(comercio_router)
+app.include_router(merchant_status_router)
 app.include_router(merchant_order_router)
 app.include_router(pedido_router)
 app.include_router(product_router)

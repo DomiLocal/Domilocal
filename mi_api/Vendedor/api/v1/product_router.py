@@ -4,8 +4,8 @@ from service.product_service import ProductService
 from repository.product_repository import ProductRepository
 
 router = APIRouter(
-    prefix="/api/v1/comercios/{comercio_id}/productos",
-    tags=["Catálogo de Productos"]
+    prefix="/api/v1/merchants/{merchant_id}/products",
+    tags=["Product Catalog"]
 )
 
 repo = ProductRepository()
@@ -13,9 +13,9 @@ service = ProductService(repo)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def add_product(comercio_id: str, product_data: ProductCreate):
+def add_product(merchant_id: str, product_data: ProductCreate):
     try:
-        return service.add_product(comercio_id, product_data)
+        return service.add_product(merchant_id, product_data)
     except LookupError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except ValueError as e:
@@ -23,9 +23,9 @@ def add_product(comercio_id: str, product_data: ProductCreate):
 
 
 @router.put("/{product_id}", status_code=status.HTTP_200_OK)
-def update_product(comercio_id: str, product_id: str, product_data: ProductCreate):
+def update_product(merchant_id: str, product_id: str, product_data: ProductCreate):
     try:
-        return service.update_product(comercio_id, product_id, product_data)
+        return service.update_product(merchant_id, product_id, product_data)
     except LookupError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except ValueError as e:
@@ -33,9 +33,9 @@ def update_product(comercio_id: str, product_id: str, product_data: ProductCreat
 
 
 @router.delete("/{product_id}", status_code=status.HTTP_200_OK)
-def delete_product(comercio_id: str, product_id: str):
+def delete_product(merchant_id: str, product_id: str):
     try:
-        return service.delete_product(comercio_id, product_id)
+        return service.delete_product(merchant_id, product_id)
     except LookupError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except ValueError as e:

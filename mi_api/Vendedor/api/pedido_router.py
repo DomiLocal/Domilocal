@@ -4,8 +4,8 @@ from service.pedido_service import ServicioPedido
 from repository.pedido_repository import repositorio_pedido
 
 router = APIRouter(
-    prefix="/api/v1/pedidos",
-    tags=["Pedidos"]
+    prefix="/api/v1/orders",
+    tags=["Orders"]
 )
 
 servicio = ServicioPedido(
@@ -13,7 +13,7 @@ servicio = ServicioPedido(
 )
 
 
-@router.patch("/{id}/listo-para-recoger")
+@router.patch("/{id}/ready-for-pickup")
 def marcar_listo_para_recoger(id: str):
 
     try:
