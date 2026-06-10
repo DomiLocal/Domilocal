@@ -61,3 +61,7 @@ class Order:
             "payment_method": self.payment_method,
             "delivery_address": self.delivery_address
         }
+
+
+class OrderCancellationRequest(BaseModel):
+    reason: str | None = None
