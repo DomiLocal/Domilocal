@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 
+
 from domain.order_domain import (
     OrderCreate,
     OrderCancellationRequest
@@ -8,6 +9,7 @@ from domain.order_domain import (
 
 from service.order_service import OrderService
 from repository.order_repository import order_repository
+from service.order_status_service import OrderStatusService
 
 
 router = APIRouter(
@@ -16,6 +18,9 @@ router = APIRouter(
 )
 
 service = OrderService(
+    repo=order_repository
+)
+status_service = OrderStatusService(
     repo=order_repository
 )
 
@@ -71,6 +76,28 @@ def cancel_order(
 
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "message": str(e),
+                "data": None,
+                "success": False
+            }
+        )
+    
+
+@router.get(
+    "/{order_id}/status",
+    status_code=status.HTTP_200_OK
+)
+def get_order_status(order_id: str):
+
+    try:
+
+        return status_service.get_order_status(order_id)
+
+    except ValueError as e:
+
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
             content={
                 "message": str(e),
                 "data": None,
