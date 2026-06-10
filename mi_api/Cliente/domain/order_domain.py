@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 
 
 class OrderItemCreate(BaseModel):
@@ -44,7 +45,9 @@ class Order:
         delivery_address: str,
         payment_method: str,
         total: float,
-        status: str = "received"
+        status: str = "received",
+        dealer: Optional[dict] = None,
+        status_history: Optional[list] = None
     ):
         self.order_id = order_id
         self.items = items
@@ -52,6 +55,10 @@ class Order:
         self.payment_method = payment_method
         self.total = total
         self.status = status
+        self.dealer = dealer
+        self.status_history = status_history or [
+            {"status": status, "time": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
+        ]
 
     def to_response(self):
         return {
