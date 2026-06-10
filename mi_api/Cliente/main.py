@@ -9,7 +9,7 @@ from fastapi.exceptions import RequestValidationError
 
 from api.client_api import router as client_router
 from api.order_api import router as order_router
-
+from api.catalog_api import router as catalog_router
 
 # ── FastAPI application ──────────────────────────────────────
 app = FastAPI(
@@ -93,6 +93,7 @@ async def validation_exception_handler(
 # ── Register routers ─────────────────────────────────────────
 app.include_router(client_router)
 app.include_router(order_router)
+app.include_router(catalog_router)
 
 
 # ── Root endpoint ────────────────────────────────────────────

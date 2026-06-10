@@ -1,6 +1,6 @@
 from domain.order_domain import (
     OrderCreate,
-    OrderResponse,
+    OrderCancellationRequest,
     Order
 )
 
@@ -14,18 +14,16 @@ class OrderService:
 
     def create_order(self, order_data: OrderCreate):
 
-        # Regla 1: carrito no vacío
         if not order_data.items:
             raise ValueError(
                 "It is not possible to create an order with an empty cart."
             )
-        
+
         if not order_data.delivery_address:
             raise ValueError(
                 "delivery_address is required."
             )
 
-        # Regla 2: todos los productos deben ser del mismo comercio
         store_ids = {item.store_id for item in order_data.items}
 
         if len(store_ids) > 1:
@@ -33,13 +31,11 @@ class OrderService:
                 "You can only order products from one business per order."
             )
 
-        # Calcular subtotal
         subtotal = sum(
             item.quantity * item.unit_price
             for item in order_data.items
         )
 
-        # Costo fijo de envío
         delivery_fee = 3500
 
         total = subtotal + delivery_fee
@@ -65,6 +61,47 @@ class OrderService:
                 "total": order.total,
                 "payment_method": order.payment_method,
                 "delivery_address": order.delivery_address
+            },
+            "success": True
+        }
+
+    def cancel_order(
+        self,
+        order_id: str,
+        cancellation_data: OrderCancellationRequest
+    ):
+
+        order = self.repo.get_by_id(order_id)
+
+        if not order:
+            raise LookupError(
+                "Order not found."
+            )
+
+        if order.status in [
+            "in_transit",
+            "delivered"
+        ]:
+            raise ValueError(
+                "Unable to cancel the order. The driver is already on the way."
+            )
+
+        if order.status not in [
+            "received",
+            "in_preparation"
+        ]:
+            raise ValueError(
+                "Unable to cancel the order."
+            )
+
+        order.status = "cancelled"
+
+        return {
+            "message": "Order cancelled successfully.",
+            "data": {
+                "order_id": order.order_id,
+                "status": order.status,
+                "reason": cancellation_data.reason
             },
             "success": True
         }
