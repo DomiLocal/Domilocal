@@ -14,7 +14,7 @@ servicio = ServicioPedido(
 
 
 @router.patch("/{id}/ready-for-pickup")
-def marcar_listo_para_recoger(id: str):
+def mark_ready_for_pickup(id: str):
 
     try:
 

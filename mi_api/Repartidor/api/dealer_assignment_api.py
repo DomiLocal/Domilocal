@@ -29,7 +29,7 @@ async def _schedule_timeout_reassignment(order_id: str, dealer_id: str, repo: De
 
 
 @router.post(
-    "/pedidos/{order_id}/asignar-repartidor",
+    "/orders/{order_id}/assign-dealer",
     status_code=status.HTTP_201_CREATED,
     response_model=DealerAssignmentSuccessResponse,
     responses={

@@ -12,12 +12,12 @@ from service.dealer_service import DealerService
 from repository.dealer_repository import DealerRepository, get_dealer_repository
 
 router = APIRouter(
-    prefix="/api/v1/repartidores",
+    prefix="/api/v1/dealers",
     tags=["Dealers"]
 )
 
 @router.post(
-    "/registro",
+    "/register",
     status_code=status.HTTP_201_CREATED,
     response_model=DealerRegisterSuccessResponse,
     responses={
@@ -51,7 +51,7 @@ def register_dealer(payload: DealerCreate, repo: DealerRepository = Depends(get_
 
 
 @router.post(
-    "/{dealer_id}/confirmar",
+    "/{dealer_id}/confirm",
     status_code=status.HTTP_201_CREATED,
     response_model=DealerRegisterSuccessResponse,
     responses={
@@ -84,7 +84,7 @@ def confirm_dealer(dealer_id: str, repo: DealerRepository = Depends(get_dealer_r
 
 
 @router.patch(
-    "/{dealer_id}/disponibilidad",
+    "/{dealer_id}/availability",
     status_code=status.HTTP_201_CREATED,
     response_model=DealerAvailabilitySuccessResponse,
     responses={

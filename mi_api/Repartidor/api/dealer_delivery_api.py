@@ -18,7 +18,7 @@ router = APIRouter(
 
 
 @router.patch(
-    "/pedidos/{id}/confirmar-entrega",
+    "/orders/{id}/confirm-delivery",
     status_code=status.HTTP_201_CREATED,
     response_model=DeliveryConfirmationSuccessResponse,
     responses={

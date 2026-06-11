@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/api/v1/repartidores/{id}/pedido-activo",
+    "/api/v1/dealers/{id}/active-order",
     summary="Get active order details",
     description=(
         "Returns the full details of the active order assigned to the dealer: "
