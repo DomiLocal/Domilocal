@@ -1,18 +1,35 @@
 from fastapi import APIRouter, HTTPException, status
-from domain.product_domain import ProductCreate
-from service.product_service import ProductService
-from repository.product_repository import ProductRepository
+
+from mi_api.Vendedor.domain.product_domain import ProductCreate
+from mi_api.Vendedor.service.product_service import ProductService
+from mi_api.Vendedor.repository.product_repository import ProductRepository
 
 router = APIRouter(
     prefix="/api/v1/merchants/{merchant_id}/products",
-    tags=["Product Catalog"]
+    tags=["Product Management"],
 )
 
 repo = ProductRepository()
 service = ProductService(repo)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    status_code=status.HTTP_201_CREATED,
+    summary="Add product",
+    description=(
+        "Add a new product to the merchant's catalog.\n\n"
+        "**Available categories** (spaces or underscores both accepted):\n"
+        "- `aseo`\n"
+        "- `bebidas`\n"
+        "- `comidas`\n"
+        "- `general` *(default)*\n"
+        "- `lacteos`\n"
+        "- `mascotas`\n"
+        "- `panaderia`\n"
+        "- `snacks`"
+    ),
+)
 def add_product(merchant_id: str, product_data: ProductCreate):
     try:
         return service.add_product(merchant_id, product_data)

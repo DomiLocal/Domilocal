@@ -13,6 +13,7 @@ class OrderStatus(str, Enum):
     RECEIVED         = "received"
     IN_PREPARATION   = "in_preparation"
     READY_FOR_PICKUP = "ready_for_pickup"
+    IN_TRANSIT       = "in_transit"
     DELIVERED        = "delivered"
     CANCELLED        = "cancelled"
 

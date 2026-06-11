@@ -1,6 +1,7 @@
 from typing import Optional, Dict
-from domain.comercio_domain import Comercio
-from repository.shared_store import MERCHANTS
+
+from mi_api.Vendedor.domain.comercio_domain import Comercio
+from mi_api.shared_store import MERCHANTS
 
 
 class ComercioRepository:

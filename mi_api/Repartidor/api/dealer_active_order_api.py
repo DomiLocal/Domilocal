@@ -1,16 +1,13 @@
-# ─────────────────────────────────────────────────────────────
-# API (HU-C05) — Consulta del pedido activo del repartidor
-# ─────────────────────────────────────────────────────────────
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
-from domain.dealer_active_order_domain import (
+from mi_api.Repartidor.domain.dealer_active_order_domain import (
     ActiveOrderResponseData,
     ActiveOrderSuccessResponse,
     ActiveOrderErrorResponse,
 )
-from service.dealer_active_order_service import DealerActiveOrderService
-from repository.dealer_repository import DealerRepository, get_dealer_repository
+from mi_api.Repartidor.service.dealer_active_order_service import DealerActiveOrderService
+from mi_api.Repartidor.repository.dealer_repository import DealerRepository, get_dealer_repository
 
 router = APIRouter()
 
@@ -19,7 +16,7 @@ router = APIRouter()
     "/api/v1/dealers/{id}/active-order",
     summary="Get active order details",
     description=(
-        "Returns the full details of the active order assigned to the dealer: "
+        "Returns full details of the active order assigned to the dealer: "
         "merchant info, customer data, delivery address with map link, "
         "product list, and special notes."
     ),
@@ -29,12 +26,9 @@ router = APIRouter()
         404: {"model": ActiveOrderErrorResponse},
         503: {"model": ActiveOrderErrorResponse},
     },
-    tags=["HU-C05 — Active Order Query"],
+    tags=["Queries"],
 )
-def get_active_order(
-    id: str,
-    repo: DealerRepository = Depends(get_dealer_repository),
-):
+def get_active_order(id: str, repo: DealerRepository = Depends(get_dealer_repository)):
     service = DealerActiveOrderService(repo)
     try:
         detail, reason = service.get_active_order(id)
@@ -45,16 +39,10 @@ def get_active_order(
         )
 
     if reason == "dealer_not_found":
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Dealer not found.", "data": None, "success": False},
-        )
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "Dealer not found.", "data": None, "success": False})
 
     if reason == "no_active_order":
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "You have no active order at this moment.", "data": None, "success": False},
-        )
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "You have no active order at this moment.", "data": None, "success": False})
 
     response_data = ActiveOrderResponseData(
         order_id=detail.order_id,
@@ -64,9 +52,5 @@ def get_active_order(
     )
     return JSONResponse(
         status_code=status.HTTP_200_OK,
-        content={
-            "message": "Order details retrieved successfully.",
-            "data": response_data.model_dump(),
-            "success": True,
-        },
+        content={"message": "Order details retrieved successfully.", "data": response_data.model_dump(), "success": True},
     )

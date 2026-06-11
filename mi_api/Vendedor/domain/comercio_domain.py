@@ -10,20 +10,32 @@ VALID_CATEGORIES = {
     "drogueria",
 }
 
+_READABLE_CATEGORIES = ", ".join(sorted(VALID_CATEGORIES))
+
 
 class ComercioCreate(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
     address: str = Field(..., min_length=5, max_length=200)
-    category: str
+    category: str = Field(
+        ...,
+        description=(
+            "Business category. Spaces or underscores both accepted. "
+            f"Valid values: {_READABLE_CATEGORIES}"
+        ),
+    )
     phone: str = Field(..., min_length=7, max_length=15)
     email: str = Field(..., min_length=5)
 
     @field_validator("category")
     @classmethod
     def validate_category(cls, v: str) -> str:
-        if v not in VALID_CATEGORIES:
-            raise ValueError("The indicated category is not valid.")
-        return v
+        normalized = v.strip().lower().replace(" ", "_")
+        if normalized not in VALID_CATEGORIES:
+            raise ValueError(
+                f"'{v}' is not a valid category. "
+                f"Available categories: {_READABLE_CATEGORIES}"
+            )
+        return normalized
 
 
 class Comercio:
