@@ -4,16 +4,17 @@ from datetime import datetime
 
 
 class OrderItemCreate(BaseModel):
+    product_id: str = Field(..., min_length=1)
     product_name: str = Field(..., min_length=2)
     store_id: str = Field(..., min_length=1)
     quantity: int = Field(..., gt=0)
-    unit_price: float = Field(..., gt=0)
 
 
 class OrderCreate(BaseModel):
     items: List[OrderItemCreate]
     delivery_address: str | None = None
     payment_method: str
+    client_id: Optional[str] = None
 
     @field_validator("payment_method")
     @classmethod

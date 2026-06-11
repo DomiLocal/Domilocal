@@ -1,4 +1,4 @@
-from repository.order_repository import OrderRepository
+from mi_api.Cliente.repository.order_repository import OrderRepository
 
 
 class OrderStatusService:
@@ -7,7 +7,6 @@ class OrderStatusService:
         self.repo = repo
 
     def get_order_status(self, order_id: str):
-
         order = self.repo.get_by_id(order_id)
 
         if not order:
@@ -21,7 +20,7 @@ class OrderStatusService:
                 "order_id": order.order_id,
                 "status": order.status,
                 "dealer": dealer,
-                "status_history": order.status_history
+                "status_history": order.status_history,
             },
-            "success": True
+            "success": True,
         }
